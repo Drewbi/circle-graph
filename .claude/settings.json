@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "npx shadcn@latest info --json"
+    ]
+  }
+}
