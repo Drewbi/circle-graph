@@ -1,21 +1,4 @@
-# React + TypeScript + Vite + shadcn/ui
+# Circle Graph
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
-
-## Adding components
-
-To add components to your app, run the following command:
-
-```bash
-npx shadcn@latest add button
-```
-
-This will place the ui components in the `src/components` directory.
-
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button"
-```
+Generator and graphing tool for pixel circles.
+<img width="703" height="815" alt="image" src="https://github.com/user-attachments/assets/2378e516-d6af-4141-8eec-58b78817c8df" />
