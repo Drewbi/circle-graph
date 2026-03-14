@@ -86,7 +86,7 @@ export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, sh
 
   return (
     <div ref={wrapperRef} className="relative size-full">
-      <canvas ref={canvasRef} />
+      <canvas ref={canvasRef} className="touch-none" />
       <DebugPanel transformRef={transformRef} show={showDebug ?? false} />
     </div>
   )
