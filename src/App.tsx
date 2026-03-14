@@ -72,7 +72,7 @@ function NumberField({
           min={min}
           max={max}
           onChange={(e) => set(parseFloat(e.target.value))}
-          className="w-16 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="w-16 text-base sm:text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <Button
           variant="outline"
@@ -277,7 +277,7 @@ export default function App() {
               </div>
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom">
+          <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SheetHeader>
               <SheetTitle>Circle Graph</SheetTitle>
             </SheetHeader>
