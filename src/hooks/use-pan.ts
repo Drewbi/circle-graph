@@ -18,6 +18,12 @@ export function usePan(
     let startTy = 0
 
     const onPointerDown = (e: PointerEvent) => {
+      if (!e.isPrimary) {
+        // Second finger arrived — cancel single-finger pan so pinch-zoom can take over
+        dragging = false
+        canvas.style.cursor = "grab"
+        return
+      }
       dragging = true
       startX = e.clientX
       startY = e.clientY
