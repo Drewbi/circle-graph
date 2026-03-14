@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Palette
-   Ink Black:    #101119 - oklch(0.1805 0.017 279.05)
+   Carbon Black:    #17171c - oklch(0.2069 0.010 285.51)
    Space Indigo: #2B2D42 - oklch(0.3049 0.038 279.69)
    Lavender:     #8D99AE - oklch(0.6804 0.034 261.69)
    Platinum:     #EDF2F4 - oklch(0.9579 0.006 223.46)
@@ -15,11 +15,11 @@
 
 :root {
     --background: oklch(0.9579 0.006 223.46);
-    --foreground: oklch(0.1805 0.017 279.05);
+    --foreground: oklch(0.2069 0.010 285.51);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.1805 0.017 279.05);
+    --card-foreground: oklch(0.2069 0.010 285.51);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.1805 0.017 279.05);
+    --popover-foreground: oklch(0.2069 0.010 285.51);
     --primary: oklch(0.6122 0.231 22.61);
     --primary-foreground: oklch(0.9579 0.006 223.46);
     --secondary: oklch(0.88 0.022 261.69);
@@ -49,7 +49,7 @@
 }
 
 .dark {
-    --background: oklch(0.1805 0.017 279.05);
+    --background: oklch(0.2069 0.010 285.51);
     --foreground: oklch(0.9579 0.006 223.46);
     --card: oklch(0.3049 0.038 279.69);
     --card-foreground: oklch(0.9579 0.006 223.46);

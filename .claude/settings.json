@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "npx shadcn@latest info --json"
+      "npx shadcn@latest",
+      "Bash(npx shadcn@latest info --json 2>/dev/null || echo '{\"error\": \"No shadcn project found. Run shadcn init first.\"}')"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
 }
