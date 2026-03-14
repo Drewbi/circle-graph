@@ -4,7 +4,7 @@ import { type CellSet, decodeCell } from "@/lib/circle"
 import { type RenderConfig, cellToPixel } from "@/lib/render"
 
 export type Transform = { scale: number; x: number; y: number }
-export type Palette = { background: string; cell: string; grid: string }
+export type Palette = { background: string; cell: string; grid: string; debug: string }
 export type GridStyle = "dots" | "lines"
 
 type TileCache = { key: string; pattern: CanvasPattern }
@@ -24,9 +24,11 @@ export function useDrawCircle(
   transformRef: React.RefObject<Transform>,
   cellsRef: React.RefObject<CellSet>,
   diameterRef: React.RefObject<number>,
+  thicknessRef: React.RefObject<number>,
   renderRef: React.RefObject<RenderConfig>,
   paletteRef: React.RefObject<Palette>,
   gridStyleRef: React.RefObject<GridStyle>,
+  showCircleOverlayRef: React.RefObject<boolean>,
 ) {
   const rafRef = useRef<number | null>(null)
   const tileCacheRef = useRef<TileCache | null>(null)
@@ -38,11 +40,13 @@ export function useDrawCircle(
     if (!ctx) return
 
     const { scale, x: offsetX, y: offsetY } = transformRef.current!
-    const { background, cell, grid } = paletteRef.current!
+    const { background, cell, grid, debug } = paletteRef.current!
     const cells = cellsRef.current!
     const diameter = diameterRef.current!
+    const thickness = thicknessRef.current!
     const render = renderRef.current!
     const gridStyle = gridStyleRef.current!
+    const showCircleOverlay = showCircleOverlayRef.current!
     const { cellSize } = render
     const gap = 1
 
@@ -50,7 +54,11 @@ export function useDrawCircle(
     ctx.fillStyle = background
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY)
+    // x/y are pan offsets from centre — compute the actual pixel offset for setTransform
+    const worldCenter = (diameter / 2 + render.padding) * render.cellSize
+    const actualX = canvas.width / 2 - worldCenter * scale + offsetX
+    const actualY = canvas.height / 2 - worldCenter * scale + offsetY
+    ctx.setTransform(scale, 0, 0, scale, actualX, actualY)
 
     if (gridStyle === "dots") {
       // Tile is created at screen resolution so dots stay crisp at any zoom.
@@ -68,8 +76,8 @@ export function useDrawCircle(
       const s = cellSize / tileScreen // maps tile pixels → world units
       tileCacheRef.current!.pattern.setTransform(new DOMMatrix([s, 0, 0, s, 0, 0]))
 
-      const worldLeft = -offsetX / scale
-      const worldTop = -offsetY / scale
+      const worldLeft = -actualX / scale
+      const worldTop = -actualY / scale
       ctx.fillStyle = tileCacheRef.current!.pattern
       ctx.fillRect(worldLeft, worldTop, canvas.width / scale, canvas.height / scale)
     }
@@ -82,11 +90,29 @@ export function useDrawCircle(
       ctx.fillRect(px + gap, py + gap, cellSize - gap * 2, cellSize - gap * 2)
     }
 
+    if (showCircleOverlay) {
+      const { cellSize, padding } = render
+      const outerRadius = diameter / 2
+      const innerRadius = Math.max(0, outerRadius - thickness)
+      // Center is always at (outerRadius + padding) * cellSize for both even and odd diameters
+      const cx = (outerRadius + padding) * cellSize
+      const cy = (outerRadius + padding) * cellSize
+
+      ctx.save()
+      ctx.globalAlpha = 0.25
+      ctx.fillStyle = debug
+      ctx.beginPath()
+      ctx.arc(cx, cy, outerRadius * cellSize, 0, Math.PI * 2, false)
+      if (innerRadius > 0) ctx.arc(cx, cy, innerRadius * cellSize, 0, Math.PI * 2, true)
+      ctx.fill("evenodd")
+      ctx.restore()
+    }
+
     if (gridStyle === "lines") {
-      const worldLeft = -offsetX / scale
-      const worldTop = -offsetY / scale
-      const worldRight = (canvas.width - offsetX) / scale
-      const worldBottom = (canvas.height - offsetY) / scale
+      const worldLeft = -actualX / scale
+      const worldTop = -actualY / scale
+      const worldRight = (canvas.width - actualX) / scale
+      const worldBottom = (canvas.height - actualY) / scale
 
       const firstCol = Math.floor(worldLeft / cellSize)
       const lastCol = Math.ceil(worldRight / cellSize)
@@ -108,7 +134,7 @@ export function useDrawCircle(
       }
       ctx.stroke()
     }
-  }, [canvasRef, transformRef, cellsRef, diameterRef, renderRef, paletteRef, gridStyleRef])
+  }, [canvasRef, transformRef, cellsRef, diameterRef, thicknessRef, renderRef, paletteRef, gridStyleRef, showCircleOverlayRef])
 
   const scheduleDraw = useCallback(() => {
     if (rafRef.current !== null) return

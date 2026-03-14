@@ -5,6 +5,7 @@ import type { Transform } from "@/hooks/use-draw-circle"
 export function useZoom(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   transformRef: React.RefObject<Transform>,
+  worldCenterRef: React.RefObject<number>,
   scheduleDraw: () => void,
 ) {
   useEffect(() => {
@@ -18,13 +19,24 @@ export function useZoom(
       const cx = e.clientX - rect.left
       const cy = e.clientY - rect.top
 
-      const { scale, x, y } = transformRef.current!
+      const { scale, x: panX, y: panY } = transformRef.current!
+      const wc = worldCenterRef.current!
+
+      // Resolve pan-from-centre to absolute pixel offsets
+      const offsetX = canvas.width / 2 - wc * scale + panX
+      const offsetY = canvas.height / 2 - wc * scale + panY
+
       const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1
       const newScale = Math.min(Math.max(scale * factor, 0.1), 20)
 
+      // Keep the world point under the cursor fixed
+      const newOffsetX = cx - (cx - offsetX) * (newScale / scale)
+      const newOffsetY = cy - (cy - offsetY) * (newScale / scale)
+
+      // Convert back to pan-from-centre
       transformRef.current!.scale = newScale
-      transformRef.current!.x = cx - (cx - x) * (newScale / scale)
-      transformRef.current!.y = cy - (cy - y) * (newScale / scale)
+      transformRef.current!.x = newOffsetX - (canvas.width / 2 - wc * newScale)
+      transformRef.current!.y = newOffsetY - (canvas.height / 2 - wc * newScale)
 
       scheduleDraw()
     }
