@@ -24,6 +24,7 @@ type NumberFieldProps = {
   max: number
   step?: (value: number, dir: "up" | "down") => number
   onChange: (value: number) => void
+  compact?: boolean
 }
 
 function NumberField({
@@ -33,6 +34,7 @@ function NumberField({
   max,
   step = () => 1,
   onChange,
+  compact = false,
 }: NumberFieldProps) {
   const set = (next: number) =>
     onChange(Math.min(Math.max(parseFloat(next.toFixed(10)), min), max))
@@ -60,6 +62,44 @@ function NumberField({
     clearTimeout(holdRef.current.timeout)
     clearInterval(holdRef.current.interval)
     holdRef.current = null
+  }
+
+  if (compact) {
+    return (
+      <div className="flex flex-col items-center gap-0.5">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <ButtonGroup>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            onPointerDown={() => startHold("down")}
+            onPointerUp={stopHold}
+            onPointerLeave={stopHold}
+          >
+            <MinusIcon />
+          </Button>
+          <Input
+            type="number"
+            value={value}
+            min={min}
+            max={max}
+            onChange={(e) => set(parseFloat(e.target.value))}
+            className="h-8 w-12 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            onPointerDown={() => startHold("up")}
+            onPointerUp={stopHold}
+            onPointerLeave={stopHold}
+          >
+            <PlusIcon />
+          </Button>
+        </ButtonGroup>
+      </div>
+    )
   }
 
   return (
@@ -97,7 +137,7 @@ function NumberField({
   )
 }
 
-function SettingsPopover({ gridStyle, onGridStyleChange, algorithm, onAlgorithmChange, showDebug, onShowDebugChange, showCircleOverlay, onShowCircleOverlayChange }: {
+type DisplaySettingsProps = {
   gridStyle: GridStyle
   onGridStyleChange: (style: GridStyle) => void
   algorithm: "distance" | "midpoint"
@@ -106,13 +146,101 @@ function SettingsPopover({ gridStyle, onGridStyleChange, algorithm, onAlgorithmC
   onShowDebugChange: (show: boolean) => void
   showCircleOverlay: boolean
   onShowCircleOverlayChange: (show: boolean) => void
-}) {
+}
+
+function DisplaySettingsContent({
+  gridStyle,
+  onGridStyleChange,
+  algorithm,
+  onAlgorithmChange,
+  showDebug,
+  onShowDebugChange,
+  showCircleOverlay,
+  onShowCircleOverlayChange,
+}: DisplaySettingsProps) {
   const { theme, setTheme } = useTheme()
   const resolvedTheme =
     theme === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
       : theme
 
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted-foreground">Theme</span>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={resolvedTheme}
+          onValueChange={(value) => value && setTheme(value as "light" | "dark")}
+        >
+          <ToggleGroupItem value="light" aria-label="Light">
+            <SunIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="dark" aria-label="Dark">
+            <MoonIcon />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      <Separator />
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted-foreground">Grid</span>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={gridStyle}
+          onValueChange={(value) => value && onGridStyleChange(value as GridStyle)}
+        >
+          <ToggleGroupItem value="dots" aria-label="Dots">
+            <Dot />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="lines" aria-label="Lines">
+            <Grid2X2 />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      <Separator />
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted-foreground">Circle</span>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={algorithm}
+          onValueChange={(value) => value && onAlgorithmChange(value as "distance" | "midpoint")}
+        >
+          <ToggleGroupItem value="distance" aria-label="Distance algorithm">
+            <LayoutGridIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="midpoint" aria-label="Midpoint algorithm">
+            <CrosshairIcon />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      <Separator />
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted-foreground">Debug</span>
+        <ToggleGroup
+          type="multiple"
+          variant="outline"
+          value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : ""].filter(Boolean)}
+          onValueChange={(values) => {
+            onShowDebugChange(values.includes("debug"))
+            onShowCircleOverlayChange(values.includes("circle"))
+          }}
+        >
+          <ToggleGroupItem value="debug" aria-label="Show debug info">
+            <ScanEyeIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="circle" aria-label="Show circle overlay">
+            <CircleIcon />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+    </>
+  )
+}
+
+function SettingsPopover(props: DisplaySettingsProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -125,76 +253,7 @@ function SettingsPopover({ gridStyle, onGridStyleChange, algorithm, onAlgorithmC
           <PopoverTitle>Display</PopoverTitle>
         </PopoverHeader>
         <Separator />
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Theme</span>
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            value={resolvedTheme}
-            onValueChange={(value) => value && setTheme(value as "light" | "dark")}
-          >
-            <ToggleGroupItem value="light" aria-label="Light">
-              <SunIcon />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="dark" aria-label="Dark">
-              <MoonIcon />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <Separator />
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Grid</span>
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            value={gridStyle}
-            onValueChange={(value) => value && onGridStyleChange(value as GridStyle)}
-          >
-            <ToggleGroupItem value="dots" aria-label="Dots">
-              <Dot />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="lines" aria-label="Lines">
-              <Grid2X2 />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <Separator />
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Circle</span>
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            value={algorithm}
-            onValueChange={(value) => value && onAlgorithmChange(value as "distance" | "midpoint")}
-          >
-            <ToggleGroupItem value="distance" aria-label="Distance algorithm">
-              <LayoutGridIcon />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="midpoint" aria-label="Midpoint algorithm">
-              <CrosshairIcon />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <Separator />
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Debug</span>
-          <ToggleGroup
-            type="multiple"
-            variant="outline"
-            value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : ""].filter(Boolean)}
-            onValueChange={(values) => {
-              onShowDebugChange(values.includes("debug"))
-              onShowCircleOverlayChange(values.includes("circle"))
-            }}
-          >
-            <ToggleGroupItem value="debug" aria-label="Show debug info">
-              <ScanEyeIcon />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="circle" aria-label="Show circle overlay">
-              <CircleIcon />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+        <DisplaySettingsContent {...props} />
       </PopoverContent>
     </Popover>
   )
@@ -240,6 +299,17 @@ export default function App() {
     </>
   )
 
+  const displaySettingsProps: DisplaySettingsProps = {
+    gridStyle,
+    onGridStyleChange: setGridStyle,
+    algorithm,
+    onAlgorithmChange: setAlgorithm,
+    showDebug,
+    onShowDebugChange: setShowDebug,
+    showCircleOverlay,
+    onShowCircleOverlayChange: setShowCircleOverlay,
+  }
+
   return (
     <div className="flex h-svh flex-col overflow-hidden">
       <header className="hidden h-12 shrink-0 items-center gap-3 border-b px-4 sm:flex justify-between">
@@ -247,55 +317,50 @@ export default function App() {
         <div className="flex items-center gap-4">
           {controls}
         </div>
-        <SettingsPopover
-          gridStyle={gridStyle}
-          onGridStyleChange={setGridStyle}
-          algorithm={algorithm}
-          onAlgorithmChange={setAlgorithm}
-          showDebug={showDebug}
-          onShowDebugChange={setShowDebug}
-          showCircleOverlay={showCircleOverlay}
-          onShowCircleOverlayChange={setShowCircleOverlay}
-        />
+        <SettingsPopover {...displaySettingsProps} />
       </header>
       <main className="flex-1 overflow-hidden">
         <CircleCanvas cells={cells} diameter={diameter} thickness={clampedThickness} render={RENDER_CONFIG} gridStyle={gridStyle} showDebug={showDebug} showCircleOverlay={showCircleOverlay} />
       </main>
 
       {/* Mobile bottom bar */}
-      <div className="flex items-center shrink-0 border-t bg-background sm:hidden">
+      <div className="flex shrink-0 items-center gap-2 border-t bg-background px-3 py-2 sm:hidden">
+        <div className="flex flex-1 items-center justify-around">
+          <NumberField
+            compact
+            label="Diameter"
+            value={diameter}
+            min={2}
+            max={200}
+            onChange={setDiameter}
+          />
+          <NumberField
+            compact
+            label="Thickness"
+            value={clampedThickness}
+            min={0}
+            max={maxThickness}
+            step={(v, dir) => (dir === "down" ? v <= 1 : v < 1) ? 0.1 : 1}
+            onChange={setThickness}
+          />
+        </div>
         <Sheet>
           <SheetTrigger asChild>
-            <button
-              aria-label="Circle settings"
-              className="flex min-w-0 flex-1 flex-col items-center gap-2 py-3 pl-4"
-            >
-              <div className="h-1 w-8 rounded-full bg-muted-foreground/30" />
-              <div className="flex items-center gap-6 text-sm">
-                <span><span className="text-muted-foreground">Diameter </span>{diameter}</span>
-                <span><span className="text-muted-foreground">Thickness </span>{clampedThickness}</span>
-              </div>
-            </button>
+            <Button variant="ghost" size="icon" aria-label="Settings">
+              <SlidersHorizontalIcon />
+            </Button>
           </SheetTrigger>
           <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SheetHeader>
-              <SheetTitle>Circle Graph</SheetTitle>
+              <SheetTitle>Settings</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-4 p-4 pt-2">
               {controls}
+              <Separator />
+              <DisplaySettingsContent {...displaySettingsProps} />
             </div>
           </SheetContent>
         </Sheet>
-        <SettingsPopover
-          gridStyle={gridStyle}
-          onGridStyleChange={setGridStyle}
-          algorithm={algorithm}
-          onAlgorithmChange={setAlgorithm}
-          showDebug={showDebug}
-          onShowDebugChange={setShowDebug}
-          showCircleOverlay={showCircleOverlay}
-          onShowCircleOverlayChange={setShowCircleOverlay}
-        />
       </div>
     </div>
   )
