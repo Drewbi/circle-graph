@@ -13,7 +13,6 @@ export type NumberFieldProps = {
   max: number
   step?: (value: number, dir: "up" | "down") => number
   onChange: (value: number) => void
-  compact?: boolean
 }
 
 export function NumberField({
@@ -23,7 +22,6 @@ export function NumberField({
   max,
   step = () => 1,
   onChange,
-  compact = false,
 }: NumberFieldProps) {
   const set = (next: number) =>
     onChange(Math.min(Math.max(parseFloat(next.toFixed(10)), min), max))
@@ -51,44 +49,6 @@ export function NumberField({
     clearTimeout(holdRef.current.timeout)
     clearInterval(holdRef.current.interval)
     holdRef.current = null
-  }
-
-  if (compact) {
-    return (
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onPointerDown={() => startHold("down")}
-            onPointerUp={stopHold}
-            onPointerLeave={stopHold}
-          >
-            <MinusIcon />
-          </Button>
-          <Input
-            type="number"
-            value={value}
-            min={min}
-            max={max}
-            onChange={(e) => set(parseFloat(e.target.value))}
-            className="h-8 w-12 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onPointerDown={() => startHold("up")}
-            onPointerUp={stopHold}
-            onPointerLeave={stopHold}
-          >
-            <PlusIcon />
-          </Button>
-        </ButtonGroup>
-      </div>
-    )
   }
 
   return (

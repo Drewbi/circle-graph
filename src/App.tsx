@@ -80,23 +80,7 @@ export default function App() {
       {/* Mobile bottom bar */}
       <div className="flex shrink-0 items-center gap-2 border-t bg-background px-3 py-2 sm:hidden">
         <div className="flex flex-1 items-center justify-around">
-          <NumberField
-            compact
-            label="Diameter"
-            value={diameter}
-            min={2}
-            max={200}
-            onChange={setDiameter}
-          />
-          <NumberField
-            compact
-            label="Thickness"
-            value={clampedThickness}
-            min={0}
-            max={maxThickness}
-            step={(v, dir) => (dir === "down" ? v <= 1 : v < 1) ? 0.1 : 1}
-            onChange={setThickness}
-          />
+          {controls}
         </div>
         <Sheet>
           <SheetTrigger asChild>
