@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { SlidersHorizontalIcon } from "lucide-react"
+import { PanelBottomOpenIcon } from "lucide-react"
 
 import { CircleCanvas } from "@/components/circle-canvas"
 import { DisplaySettingsContent, SettingsPopover } from "@/components/display-settings"
@@ -85,7 +85,7 @@ export default function App() {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Settings">
-              <SlidersHorizontalIcon />
+              <PanelBottomOpenIcon />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
