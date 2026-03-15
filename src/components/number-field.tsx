@@ -73,7 +73,7 @@ export function NumberField({
             min={min}
             max={max}
             onChange={(e) => set(parseFloat(e.target.value))}
-            className="w-12 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="h-7 w-12 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <Button
             variant="outline"

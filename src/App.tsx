@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { computeCircleCells } from "@/lib/circle"
+import { DIAMETER_MAX, DIAMETER_MIN } from "@/lib/config"
 import type { RenderConfig } from "@/lib/render"
 
 const RENDER_CONFIG: RenderConfig = { cellSize: 16, padding: 2 }
@@ -38,8 +39,8 @@ export default function App() {
       <NumberField
         label="Diameter"
         value={diameter}
-        min={2}
-        max={200}
+        min={DIAMETER_MIN}
+        max={DIAMETER_MAX}
         onChange={setDiameter}
         compact={compact}
       />
@@ -80,28 +81,28 @@ export default function App() {
       </main>
 
       {/* Mobile bottom bar */}
-      <div className="flex shrink-0 items-center gap-2 border-t bg-background px-3 py-2 sm:hidden">
-        <div className="flex flex-1 items-center justify-around">
-          {controls(true)}
+      <Sheet>
+        <div className="flex shrink-0 items-center gap-2 border-t bg-background px-3 py-2 sm:hidden">
+          <div className="flex flex-1 gap-2 justify-around items-end">
+            {controls(true)}
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Settings">
+                <PanelBottomOpenIcon />
+              </Button>
+            </SheetTrigger>
+          </div>
+            <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
+              <SheetHeader>
+                <SheetTitle>Settings</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 p-4 pt-2">
+                {controls()}
+                <Separator />
+                <DisplaySettingsContent {...displaySettingsProps} />
+              </div>
+            </SheetContent>
         </div>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Settings">
-              <PanelBottomOpenIcon />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
-            <SheetHeader>
-              <SheetTitle>Settings</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col gap-4 p-4 pt-2">
-              {controls()}
-              <Separator />
-              <DisplaySettingsContent {...displaySettingsProps} />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
+      </Sheet>
     </div>
   )
 }

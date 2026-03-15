@@ -52,7 +52,7 @@ Invoke with: `Skill({ skill: "shadcn" })`
 ### Hooks (`src/hooks/`)
 
 - **`use-draw-circle.ts`** — Returns `{ draw, scheduleDraw }`. Renders grid background (dots or lines), filled circle cells, and optional circle overlay. Applies canvas transform matrix for zoom/pan. Caches dot-grid tiles for performance.
-- **`use-zoom.ts`** — Mouse wheel and pinch-to-zoom (two-finger). Scale range: 0.1×–20×. Zooms toward cursor/pinch midpoint.
+- **`use-zoom.ts`** — Mouse wheel and pinch-to-zoom (two-finger). Zooms toward cursor/pinch midpoint.
 - **`use-pan.ts`** — Pointer-event drag-to-pan. Single-pointer only; cancels on second pointer (hands off to pinch-zoom). Uses pointer capture for smooth out-of-bounds tracking.
 - **`use-resize-canvas.ts`** — `ResizeObserver` syncs canvas dimensions with wrapper. Fires `onInit` once on first resize.
 - **`use-fit-on-change.ts`** — Auto-fits view to circle when diameter changes significantly (delta > 1) and pan is near center.

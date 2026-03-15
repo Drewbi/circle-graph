@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 
 import type { Transform } from "@/hooks/use-draw-circle"
+import { ZOOM_MAX, ZOOM_MIN } from "@/lib/config"
 
 export function useZoom(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -27,7 +28,7 @@ export function useZoom(
       const offsetY = canvas.height / 2 - wc * scale + panY
 
       const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1
-      const newScale = Math.min(Math.max(scale * factor, 0.1), 20)
+      const newScale = Math.min(Math.max(scale * factor, ZOOM_MIN), ZOOM_MAX)
 
       // Keep the world point under the cursor fixed
       const newOffsetX = cx - (cx - offsetX) * (newScale / scale)
@@ -70,7 +71,7 @@ export function useZoom(
       const offsetX = canvas.width / 2 - wc * scale + panX
       const offsetY = canvas.height / 2 - wc * scale + panY
 
-      const newScale = Math.min(Math.max(scale * factor, 0.1), 20)
+      const newScale = Math.min(Math.max(scale * factor, ZOOM_MIN), ZOOM_MAX)
 
       const newOffsetX = cx - (cx - offsetX) * (newScale / scale)
       const newOffsetY = cy - (cy - offsetY) * (newScale / scale)
