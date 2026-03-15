@@ -33,7 +33,7 @@ export default function App() {
     [diameter, clampedThickness, algorithm]
   )
 
-  const controls = (
+  const controls = (compact = false) => (
     <>
       <NumberField
         label="Diameter"
@@ -41,6 +41,7 @@ export default function App() {
         min={2}
         max={200}
         onChange={setDiameter}
+        compact={compact}
       />
       <NumberField
         label="Thickness"
@@ -49,6 +50,7 @@ export default function App() {
         max={maxThickness}
         step={(v, dir) => (dir === "down" ? v <= 1 : v < 1) ? 0.1 : 1}
         onChange={setThickness}
+        compact={compact}
       />
     </>
   )
@@ -69,7 +71,7 @@ export default function App() {
       <header className="hidden h-12 shrink-0 items-center gap-3 border-b px-4 sm:flex justify-between">
         <span className="shrink-0 text-sm font-semibold">Circle Graph</span>
         <div className="flex items-center gap-4">
-          {controls}
+          {controls()}
         </div>
         <SettingsPopover {...displaySettingsProps} />
       </header>
@@ -80,7 +82,7 @@ export default function App() {
       {/* Mobile bottom bar */}
       <div className="flex shrink-0 items-center gap-2 border-t bg-background px-3 py-2 sm:hidden">
         <div className="flex flex-1 items-center justify-around">
-          {controls}
+          {controls(true)}
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -93,7 +95,7 @@ export default function App() {
               <SheetTitle>Settings</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-4 p-4 pt-2">
-              {controls}
+              {controls()}
               <Separator />
               <DisplaySettingsContent {...displaySettingsProps} />
             </div>
