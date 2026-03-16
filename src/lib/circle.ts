@@ -7,17 +7,12 @@ export type Point = {
 // Configuration for a circle/ring
 // diameter: outer extent in blocks
 // thickness: 1 = single-block outline; Math.floor(diameter / 2) = filled disk
-// algorithm:
-//   "distance" — include any cell whose sample point falls within [innerRadius, outerRadius]
-//   "midpoint" — Bresenham midpoint algorithm; selects the pixel closest to the true circle
-//                at each step, so no fat corners. For rings, fills between inner/outer arcs.
 //
 // Internally: outerRadius = diameter / 2
 //             innerRadius = outerRadius - thickness
 export type CircleConfig = {
   diameter: number
   thickness: number
-  algorithm?: "distance" | "midpoint"
 }
 
 // Maximum coordinate value (positive or negative) for encoded cells.
@@ -171,10 +166,69 @@ function computeMidpointCells(config: CircleConfig): CellSet {
   return cells
 }
 
+// --- Closest-cell algorithm ---------------------------------------------
+//
+// For each column x, selects the single cell whose center is closest to the
+// ideal circle arc (from inside), guaranteeing that no two adjacent cells in
+// a single-thickness outline share a face.
+//
+// Approach based on Donat Studios' Pixel Circle Generator:
+// https://donatstudios.com/PixelCircleGenerator
+
+function closestCellArc(diameter: number): Map<number, number> {
+  const r = diameter / 2
+  const isEven = diameter % 2 === 0
+  const arc = new Map<number, number>()
+  const half = Math.floor(r)
+  for (let x = 0; x <= half; x++) {
+    const dx = isEven ? x + 0.5 : x
+    const dySquared = r * r - dx * dx
+    if (dySquared < 0) break
+    arc.set(x, Math.floor(Math.sqrt(dySquared)))
+  }
+  return arc
+}
+
+function computeClosestCellCells(config: CircleConfig): CellSet {
+  const { diameter, thickness } = config
+  const isEven = diameter % 2 === 0
+  const cells: CellSet = new Set()
+  const outerArc = closestCellArc(diameter)
+
+  // Snap inner diameter to the nearest positive integer with the same parity as
+  // the outer so that both arcs use the same half-pixel sample offset.
+  const rawInner = diameter - 2 * thickness
+  const innerArc = new Map<number, number>()
+  if (rawInner > 0) {
+    let innerDiam = Math.round(rawInner)
+    if (innerDiam % 2 !== diameter % 2) innerDiam--
+    if (innerDiam > 0) {
+      for (const [x, y] of closestCellArc(innerDiam)) innerArc.set(x, y)
+    }
+  }
+
+  for (const [x, yOuter] of outerArc) {
+    const yInner = innerArc.has(x) ? innerArc.get(x)! + 1 : 0
+    for (let y = yInner; y <= yOuter; y++) {
+      if (isEven) {
+        cells.add(encodeCell(x, y));       cells.add(encodeCell(-x - 1, y))
+        cells.add(encodeCell(x, -y - 1)); cells.add(encodeCell(-x - 1, -y - 1))
+        cells.add(encodeCell(y, x));       cells.add(encodeCell(-y - 1, x))
+        cells.add(encodeCell(y, -x - 1)); cells.add(encodeCell(-y - 1, -x - 1))
+      } else {
+        cells.add(encodeCell(x, y));   cells.add(encodeCell(-x, y))
+        cells.add(encodeCell(x, -y)); cells.add(encodeCell(-x, -y))
+        cells.add(encodeCell(y, x));   cells.add(encodeCell(-y, x))
+        cells.add(encodeCell(y, -x)); cells.add(encodeCell(-y, -x))
+      }
+    }
+  }
+
+  return cells
+}
+
 // --- Public API ---------------------------------------------------------
 
 export function computeCircleCells(config: CircleConfig): CellSet {
-  return config.algorithm === "midpoint"
-    ? computeMidpointCells(config)
-    : computeDistanceCells(config)
+  return computeClosestCellCells(config)
 }
