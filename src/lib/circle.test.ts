@@ -78,7 +78,7 @@ describe("computeCircleCells", () => {
   describe("even diameter — corner sampling", () => {
     it("diameter 4, thickness 1 — outline ring", () => {
       expect(circleToString({ diameter: 4, thickness: 1 })).toBe(
-        [".XX.", "X..X", "X..X", ".XX."].join("\n")
+        ["XXXX", "X..X", "X..X", "XXXX"].join("\n")
       )
     })
 
@@ -98,16 +98,16 @@ describe("computeCircleCells", () => {
     it("diameter 10, thickness 1 — outline ring", () => {
       expect(circleToString({ diameter: 10, thickness: 1 })).toBe(
         [
-          "...XXXX...",
+          "..XXXXXX..",
           ".XX....XX.",
-          ".X......X.",
+          "XX......XX",
           "X........X",
           "X........X",
           "X........X",
           "X........X",
-          ".X......X.",
+          "XX......XX",
           ".XX....XX.",
-          "...XXXX...",
+          "..XXXXXX..",
         ].join("\n")
       )
     })

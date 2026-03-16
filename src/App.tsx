@@ -20,7 +20,6 @@ export default function App() {
   const [gridStyle, setGridStyle] = useState<GridStyle>(
     () => (localStorage.getItem("gridStyle") as GridStyle) ?? "dots"
   )
-  const [algorithm, setAlgorithm] = useState<"distance" | "midpoint">("distance")
   const [showDebug, setShowDebug] = useState(false)
   const [showCircleOverlay, setShowCircleOverlay] = useState(false)
 
@@ -30,8 +29,8 @@ export default function App() {
   const clampedThickness = Math.min(thickness, maxThickness)
 
   const cells = useMemo(
-    () => computeCircleCells({ diameter, thickness: clampedThickness, algorithm }),
-    [diameter, clampedThickness, algorithm]
+    () => computeCircleCells({ diameter, thickness: clampedThickness }),
+    [diameter, clampedThickness]
   )
 
   const controls = (compact = false) => (
@@ -59,8 +58,6 @@ export default function App() {
   const displaySettingsProps = {
     gridStyle,
     onGridStyleChange: setGridStyle,
-    algorithm,
-    onAlgorithmChange: setAlgorithm,
     showDebug,
     onShowDebugChange: setShowDebug,
     showCircleOverlay,
