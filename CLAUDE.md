@@ -84,3 +84,8 @@ No external state library. Patterns used:
 Prettier config (enforced on format): no semicolons, double quotes, 2-space indent, LF line endings, trailing commas (ES5).
 
 TypeScript is strict with `noUnusedLocals`, `noUnusedParameters`, and `erasableSyntaxOnly` — avoid `enum` and parameter properties.
+
+# Github
+
+## Issues
+If confident in your solution, raise a PR from the branch you have created. Detail which sections of the solution you are least confident about.
