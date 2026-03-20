@@ -169,9 +169,11 @@ function computeMidpointCells(config: CircleConfig): CellSet {
 // --- Closest-cell algorithm ---------------------------------------------
 //
 // For each column x, selects the single cell whose center is closest to the
-// ideal circle arc (from inside), guaranteeing that no two adjacent cells in
-// a single-thickness outline share a face — only corner adjacency in diagonal
-// sections is possible.
+// ideal circle arc (from inside). Within a single octant, each step is either
+// horizontal or diagonal — no fat corners within the octant itself. However,
+// where adjacent octants meet (near 45°), the 8-fold symmetry reflection can
+// produce L-shaped junctions: a cell at the octant boundary may have both a
+// horizontal and a vertical face-neighbor from the two different octants.
 //
 // Approach based on Donat Studios' Pixel Circle Generator:
 // https://donatstudios.com/PixelCircleGenerator
