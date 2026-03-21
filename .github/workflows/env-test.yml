@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  test:
+    name: deploy to preview
+    runs-on: ubuntu-latest
+    steps:
+    - name: deploy
+      run: |
+        echo "deployed to test"
+
+  stage:
+    name: deploy to preview
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+    - name: deploy
+      run: |
+        echo "deployed to stage"
+
+  prod:
+    name: deploy to preview
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - name: deploy
+      run: |
+        echo "deployed to prod"
+    
