@@ -1,4 +1,4 @@
-import { CircleIcon, Dot, Grid2X2, MoonIcon, ScanEyeIcon, SlidersHorizontalIcon, SunIcon } from "lucide-react"
+import { CircleIcon, CrosshairIcon, Dot, Grid2X2, MoonIcon, ScanEyeIcon, SlidersHorizontalIcon, SunIcon } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import type { GridStyle } from "@/hooks/use-draw-circle"
@@ -14,6 +14,8 @@ export type DisplaySettingsProps = {
   onShowDebugChange: (show: boolean) => void
   showCircleOverlay: boolean
   onShowCircleOverlayChange: (show: boolean) => void
+  showCentreDebug: boolean
+  onShowCentreDebugChange: (show: boolean) => void
 }
 
 export function DisplaySettingsContent({
@@ -23,6 +25,8 @@ export function DisplaySettingsContent({
   onShowDebugChange,
   showCircleOverlay,
   onShowCircleOverlayChange,
+  showCentreDebug,
+  onShowCentreDebugChange,
 }: DisplaySettingsProps) {
   const { theme, setTheme } = useTheme()
   const resolvedTheme =
@@ -71,10 +75,11 @@ export function DisplaySettingsContent({
         <ToggleGroup
           type="multiple"
           variant="outline"
-          value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : ""].filter(Boolean)}
+          value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : "", showCentreDebug ? "centre" : ""].filter(Boolean)}
           onValueChange={(values) => {
             onShowDebugChange(values.includes("debug"))
             onShowCircleOverlayChange(values.includes("circle"))
+            onShowCentreDebugChange(values.includes("centre"))
           }}
         >
           <ToggleGroupItem value="debug" aria-label="Show debug info">
@@ -82,6 +87,9 @@ export function DisplaySettingsContent({
           </ToggleGroupItem>
           <ToggleGroupItem value="circle" aria-label="Show circle overlay">
             <CircleIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="centre" aria-label="Show centre debug">
+            <CrosshairIcon />
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
