@@ -27,9 +27,10 @@ type Props = {
   gridStyle: GridStyle
   showDebug?: boolean
   showCircleOverlay?: boolean
+  showCentreDebug?: boolean
 }
 
-export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, showDebug, showCircleOverlay }: Props) {
+export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, showDebug, showCircleOverlay, showCentreDebug }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { theme } = useTheme()
@@ -57,6 +58,8 @@ export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, sh
   gridStyleRef.current = gridStyle
   const showCircleOverlayRef = useRef(showCircleOverlay ?? false)
   showCircleOverlayRef.current = showCircleOverlay ?? false
+  const showCentreDebugRef = useRef(showCentreDebug ?? false)
+  showCentreDebugRef.current = showCentreDebug ?? false
 
   const { draw, scheduleDraw } = useDrawCircle(
     canvasRef,
@@ -68,6 +71,7 @@ export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, sh
     paletteRef,
     gridStyleRef,
     showCircleOverlayRef,
+    showCentreDebugRef,
   )
 
   useResizeCanvas(wrapperRef, canvasRef, draw, (width, height) => {
@@ -82,7 +86,7 @@ export function CircleCanvas({ cells, diameter, thickness, render, gridStyle, sh
   // Redraw when cells, palette, grid style, or overlay options change
   useEffect(() => {
     scheduleDraw()
-  }, [cells, thickness, palette, gridStyle, showCircleOverlay, scheduleDraw])
+  }, [cells, thickness, palette, gridStyle, showCircleOverlay, showCentreDebug, scheduleDraw])
 
   return (
     <div ref={wrapperRef} className="relative size-full">

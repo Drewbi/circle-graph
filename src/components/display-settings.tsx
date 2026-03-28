@@ -1,4 +1,4 @@
-import { CircleIcon, CrosshairIcon, Dot, Grid2X2, LayoutGridIcon, MoonIcon, ScanEyeIcon, SlidersHorizontalIcon, SunIcon } from "lucide-react"
+import { CircleIcon, CrosshairIcon, Dot, Grid2X2, MoonIcon, ScanEyeIcon, SlidersHorizontalIcon, SunIcon } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import type { GridStyle } from "@/hooks/use-draw-circle"
@@ -10,23 +10,23 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 export type DisplaySettingsProps = {
   gridStyle: GridStyle
   onGridStyleChange: (style: GridStyle) => void
-  algorithm: "distance" | "midpoint"
-  onAlgorithmChange: (algorithm: "distance" | "midpoint") => void
   showDebug: boolean
   onShowDebugChange: (show: boolean) => void
   showCircleOverlay: boolean
   onShowCircleOverlayChange: (show: boolean) => void
+  showCentreDebug: boolean
+  onShowCentreDebugChange: (show: boolean) => void
 }
 
 export function DisplaySettingsContent({
   gridStyle,
   onGridStyleChange,
-  algorithm,
-  onAlgorithmChange,
   showDebug,
   onShowDebugChange,
   showCircleOverlay,
   onShowCircleOverlayChange,
+  showCentreDebug,
+  onShowCentreDebugChange,
 }: DisplaySettingsProps) {
   const { theme, setTheme } = useTheme()
   const resolvedTheme =
@@ -71,31 +71,15 @@ export function DisplaySettingsContent({
       </div>
       <Separator />
       <div className="flex flex-col gap-2">
-        <span className="text-xs text-muted-foreground">Circle</span>
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={algorithm}
-          onValueChange={(value) => value && onAlgorithmChange(value as "distance" | "midpoint")}
-        >
-          <ToggleGroupItem value="distance" aria-label="Distance algorithm">
-            <LayoutGridIcon />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="midpoint" aria-label="Midpoint algorithm">
-            <CrosshairIcon />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      <Separator />
-      <div className="flex flex-col gap-2">
         <span className="text-xs text-muted-foreground">Debug</span>
         <ToggleGroup
           type="multiple"
           variant="outline"
-          value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : ""].filter(Boolean)}
+          value={[showDebug ? "debug" : "", showCircleOverlay ? "circle" : "", showCentreDebug ? "centre" : ""].filter(Boolean)}
           onValueChange={(values) => {
             onShowDebugChange(values.includes("debug"))
             onShowCircleOverlayChange(values.includes("circle"))
+            onShowCentreDebugChange(values.includes("centre"))
           }}
         >
           <ToggleGroupItem value="debug" aria-label="Show debug info">
@@ -103,6 +87,9 @@ export function DisplaySettingsContent({
           </ToggleGroupItem>
           <ToggleGroupItem value="circle" aria-label="Show circle overlay">
             <CircleIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="centre" aria-label="Show centre debug">
+            <CrosshairIcon />
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

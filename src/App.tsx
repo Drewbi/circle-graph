@@ -20,9 +20,9 @@ export default function App() {
   const [gridStyle, setGridStyle] = useState<GridStyle>(
     () => (localStorage.getItem("gridStyle") as GridStyle) ?? "dots"
   )
-  const [algorithm, setAlgorithm] = useState<"distance" | "midpoint">("distance")
   const [showDebug, setShowDebug] = useState(false)
   const [showCircleOverlay, setShowCircleOverlay] = useState(false)
+  const [showCentreDebug, setShowCentreDebug] = useState(false)
 
   useEffect(() => { localStorage.setItem("gridStyle", gridStyle) }, [gridStyle])
 
@@ -30,8 +30,8 @@ export default function App() {
   const clampedThickness = Math.min(thickness, maxThickness)
 
   const cells = useMemo(
-    () => computeCircleCells({ diameter, thickness: clampedThickness, algorithm }),
-    [diameter, clampedThickness, algorithm]
+    () => computeCircleCells({ diameter, thickness: clampedThickness }),
+    [diameter, clampedThickness]
   )
 
   const controls = (compact = false) => (
@@ -59,12 +59,12 @@ export default function App() {
   const displaySettingsProps = {
     gridStyle,
     onGridStyleChange: setGridStyle,
-    algorithm,
-    onAlgorithmChange: setAlgorithm,
     showDebug,
     onShowDebugChange: setShowDebug,
     showCircleOverlay,
     onShowCircleOverlayChange: setShowCircleOverlay,
+    showCentreDebug,
+    onShowCentreDebugChange: setShowCentreDebug,
   }
 
   return (
@@ -77,7 +77,7 @@ export default function App() {
         <SettingsPopover {...displaySettingsProps} />
       </header>
       <main className="flex-1 overflow-hidden">
-        <CircleCanvas cells={cells} diameter={diameter} thickness={clampedThickness} render={RENDER_CONFIG} gridStyle={gridStyle} showDebug={showDebug} showCircleOverlay={showCircleOverlay} />
+        <CircleCanvas cells={cells} diameter={diameter} thickness={clampedThickness} render={RENDER_CONFIG} gridStyle={gridStyle} showDebug={showDebug} showCircleOverlay={showCircleOverlay} showCentreDebug={showCentreDebug} />
       </main>
 
       {/* Mobile bottom bar */}

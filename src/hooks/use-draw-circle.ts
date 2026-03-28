@@ -29,6 +29,7 @@ export function useDrawCircle(
   paletteRef: React.RefObject<Palette>,
   gridStyleRef: React.RefObject<GridStyle>,
   showCircleOverlayRef: React.RefObject<boolean>,
+  showCentreDebugRef: React.RefObject<boolean>,
 ) {
   const rafRef = useRef<number | null>(null)
   const tileCacheRef = useRef<TileCache | null>(null)
@@ -47,6 +48,7 @@ export function useDrawCircle(
     const render = renderRef.current!
     const gridStyle = gridStyleRef.current!
     const showCircleOverlay = showCircleOverlayRef.current!
+    const showCentreDebug = showCentreDebugRef.current!
     const { cellSize } = render
     const gap = 1
 
@@ -108,6 +110,63 @@ export function useDrawCircle(
       ctx.restore()
     }
 
+    if (showCentreDebug) {
+      const { cellSize, padding } = render
+      const outerRadius = diameter / 2
+      const cx = (outerRadius + padding) * cellSize
+      const cy = (outerRadius + padding) * cellSize
+      const lineLen = outerRadius  * cellSize
+
+      ctx.save()
+      // Clip all lines to the outer circle so they terminate at the radius
+      ctx.beginPath()
+      ctx.arc(cx, cy, lineLen, 0, Math.PI * 2)
+      ctx.clip()
+
+      ctx.strokeStyle = debug
+      ctx.lineWidth = 1 / scale
+      ctx.globalAlpha = 0.6
+      ctx.setLineDash([6 / scale, 6 / scale])
+
+      ctx.beginPath()
+      // Horizontal
+      ctx.moveTo(cx - lineLen, cy)
+      ctx.lineTo(cx + lineLen, cy)
+      // Vertical
+      ctx.moveTo(cx, cy - lineLen)
+      ctx.lineTo(cx, cy + lineLen)
+      // Diagonal (octant boundary at 45°)
+      ctx.moveTo(cx - lineLen, cy - lineLen)
+      ctx.lineTo(cx + lineLen, cy + lineLen)
+      // Anti-diagonal (octant boundary at 135°)
+      ctx.moveTo(cx - lineLen, cy + lineLen)
+      ctx.lineTo(cx + lineLen, cy - lineLen)
+      ctx.stroke()
+
+      ctx.setLineDash([])
+
+      // Highlight centre: single cell for odd diameter, marker dot for even
+      ctx.fillStyle = debug
+      if (diameter % 2 === 1) {
+        const { px, py } = cellToPixel(0, 0, diameter, render)
+        ctx.globalAlpha = 0.35
+        ctx.fillRect(px, py, cellSize, cellSize)
+      } else {
+        // Even: no cell sits at centre — draw a small diamond at the intersection
+        const s = cellSize * 0.35
+        ctx.globalAlpha = 0.7
+        ctx.beginPath()
+        ctx.moveTo(cx, cy - s)
+        ctx.lineTo(cx + s, cy)
+        ctx.lineTo(cx, cy + s)
+        ctx.lineTo(cx - s, cy)
+        ctx.closePath()
+        ctx.fill()
+      }
+
+      ctx.restore()
+    }
+
     if (gridStyle === "lines") {
       const worldLeft = -actualX / scale
       const worldTop = -actualY / scale
@@ -134,7 +193,7 @@ export function useDrawCircle(
       }
       ctx.stroke()
     }
-  }, [canvasRef, transformRef, cellsRef, diameterRef, thicknessRef, renderRef, paletteRef, gridStyleRef, showCircleOverlayRef])
+  }, [canvasRef, transformRef, cellsRef, diameterRef, thicknessRef, renderRef, paletteRef, gridStyleRef, showCircleOverlayRef, showCentreDebugRef])
 
   const scheduleDraw = useCallback(() => {
     if (rafRef.current !== null) return
